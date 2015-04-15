@@ -1,0 +1,11 @@
+    配置tomcat7的session数据储存在memcached中:
+    (1) 将lib中的jar包拷贝到$CATALINA_HOME/lib中；
+    (2) 在$CATALINA_HOME/conf/context.xml文件中的<Context></Context>之间
+          添加以下配置信息（其中10.10.10.73:11211为memcached的IP及端口号）：
+        <Manager className="de.javakaffee.web.msm.MemcachedBackupSessionManager"
+            memcachedNodes="n1:10.10.10.73:11211" 
+            sticky="false" 
+            lockingMode="auto" 
+            sessionBackupAsync="false" 
+            sessionBackupTimeout="1000" 
+            transcoderFactoryClass="de.javakaffee.web.msm.serializer.kryo.KryoTranscoderFactory" /> 

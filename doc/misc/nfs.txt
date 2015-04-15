@@ -1,0 +1,54 @@
+1.设置nfs相关服务使用固定端口
+    vim /etc/sysconfig/nfs
+    RQUOTAD_PORT=875
+    LOCKD_TCPPORT=32803
+    LOCKD_UDPPORT=32769
+    MOUNTD_PORT=892
+
+2.防火墙开放上述端口和111,2049
+
+3.设置共享文件夹
+    /home/www/nfs 10.10.10.73(rw,anonuid=502,anongid=502)
+
+4.启动相关服务：
+    /etc/init.d/portmap start
+    /etc/init.d/nfs start
+    设置服务开机自动启动
+    chkconfig --level 35 portmap on
+    chkconfig --level 35 nfs on
+    
+5.服务器查看共享状态(hostname已解析到本机)
+    # showmount -e
+    # showmount -a
+
+6.客户端查看服务器共享状态
+    # showmount -e 10.10.10.72
+    
+7.客户端挂载服务器端共享文件夹
+    # mount 10.10.10.72:/home/www/nfs /home/www/nfs
+    
+8.客户端启动自动挂载
+    注意：客服端也要启动时要自动启动portmap服务
+    然后：
+    # vim /etc/rc.local
+    mount 10.10.10.72:/home/www/nfs /home/www/nfs
+
+9.相关命令
+    # exportfs [-aruv]
+　　-a 全部挂载或卸载 /etc/exports中的内容 
+　　-r 重新读取/etc/exports 中的信息 ，并同步更新/etc/exports、/var/lib/nfs/xtab
+　　-u 卸载单一目录（和-a一起使用为卸载所有/etc/exports文件中的目录）
+　　-v 在export的时候，将详细的信息输出到屏幕上。
+
+    具体例子： 
+　　# exportfs -au 卸载所有共享目录
+　　# exportfs -rv 重新共享所有目录并输出详细信息
+
+    nfsstat     查看NFS的运行状态，对于调整NFS的运行有很大帮助
+    rpcinfo     查看rpc执行信息，可以用于检测rpc运行情况的工具，利用rpcinfo -p 可以查看出RPC开启的端口所提供的程序有哪些
+    netstat     可以查看出nfs服务开启的端口，其中nfs 开启的是2049，portmap 开启的是111，其余则是rpc开启的
+    
+10.其他
+    虽然通过权限设置可以让普通用户访问，但是挂载的时候默认情况下只有root可以去挂载
+    NFS server 关机的时候一点要确保NFS服务关闭，没有客户端处于连接状态！
+    通过showmount -a 可以查看，如果有的话用kill killall pkill 来结束，（-9 强制结束）

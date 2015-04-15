@@ -1,0 +1,2 @@
+1. 服务器:git --bare init
+2. 客户端:编辑.git/config进行配置
